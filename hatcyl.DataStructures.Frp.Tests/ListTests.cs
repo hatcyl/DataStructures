@@ -41,5 +41,37 @@ namespace hatcyl.DataStructures.Frp.Tests
 
             Assert.AreEqual("Two", stringList[0].Sample());
         }
+
+        [TestMethod()]
+        public void ListBuilderTest()
+        {
+            IImmutableList<string> initialState = ImmutableList.Create<string>().Add("Initial");
+            StreamSink<string> add = Stream.CreateSink<string>();
+            StreamSink<string> remove = Stream.CreateSink<string>();
+            StreamSink<(int index, string value)> setItem = Stream.CreateSink<(int index, string value)>();
+
+            List<string> stringList = (new ListBuilder<string>() with
+            {
+                InitialState = initialState,
+                AddStream = add,
+                RemoveStream = remove,
+                SetItemStream = setItem
+            }).Build();
+
+            Assert.AreEqual("Initial", stringList[0].Sample());
+
+            add.Send("One");
+
+            Assert.AreEqual("Initial", stringList[0].Sample());
+            Assert.AreEqual("One", stringList[1].Sample());
+
+            remove.Send("Initial");
+
+            Assert.AreEqual("One", stringList[0].Sample());
+
+            setItem.Send((0, "Two"));
+
+            Assert.AreEqual("Two", stringList[0].Sample());
+        }
     }
 }
