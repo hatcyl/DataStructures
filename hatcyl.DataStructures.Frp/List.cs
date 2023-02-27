@@ -7,6 +7,12 @@ public class List<T>
 {
     private readonly Cell<IImmutableList<T>> _state;
 
+    public IImmutableList<T> InitialState { get; }
+    public Stream<T> AddStream { get; }
+    public Stream<IEnumerable<T>> AddRangeStream { get; }
+    public Stream<T> RemoveStream { get; }
+    public Stream<(int index, T value)> SetItemStream { get; }
+
     public List
     (
         IImmutableList<T> initialState,
@@ -22,6 +28,12 @@ public class List<T>
         .WithMethod(removeStream, value => state => state.Remove(value))
         .WithMethod(setItemStream, values => state => state.SetItem(values.index, values.value))
         .Build();
+
+        InitialState = initialState;
+        AddStream = addStream;
+        AddRangeStream = addRangeStream;
+        RemoveStream = removeStream;
+        SetItemStream = setItemStream;
     }
 
     public Cell<T?> this[int index] => _state.Map(state => state.Count > index ? state[index] : default).Calm();
