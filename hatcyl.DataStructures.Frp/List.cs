@@ -1,11 +1,12 @@
 ﻿using hatcyl.DataStructures.Frp.Utilities;
 using Sodium.Frp;
+using Sodium.Functional;
 using System.Collections.Immutable;
 
 namespace hatcyl.DataStructures.Frp;
 public class List<T>
 {
-    private readonly Cell<IImmutableList<T>> _state;
+    public readonly Cell<IImmutableList<T>> _state;
 
     public IImmutableList<T> InitialState { get; }
     public Stream<T> AddStream { get; }
@@ -36,6 +37,6 @@ public class List<T>
         SetItemStream = setItemStream;
     }
 
-    public Cell<T?> this[int index] => _state.Map(state => state.Count > index ? state[index] : default).Calm();
+    public Cell<Maybe<T>> this[int index] => _state.Map(state => state.Count > index ? Maybe.Some(state[index]) : Maybe.None);
     public Cell<IEnumerable<T>> Enumerable => _state.Map(state => state.AsEnumerable());
 }

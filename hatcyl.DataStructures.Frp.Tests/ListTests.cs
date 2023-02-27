@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sodium.Frp;
+using Sodium.Functional;
 using System.Collections.Immutable;
 using Stream = Sodium.Frp.Stream;
 
@@ -26,20 +27,20 @@ namespace hatcyl.DataStructures.Frp.Tests
                 setItem
             );
 
-            Assert.AreEqual("Initial", stringList[0].Sample());
+            Assert.AreEqual(Maybe.Some("Initial"), stringList[0].Sample());
 
             add.Send("One");
 
-            Assert.AreEqual("Initial", stringList[0].Sample());
-            Assert.AreEqual("One", stringList[1].Sample());
+            Assert.AreEqual(Maybe.Some("Initial"), stringList[0].Sample());
+            Assert.AreEqual(Maybe.Some("One"), stringList[1].Sample());
 
             remove.Send("Initial");
 
-            Assert.AreEqual("One", stringList[0].Sample());
+            Assert.AreEqual(Maybe.Some("One"), stringList[0].Sample());
 
             setItem.Send((0, "Two"));
 
-            Assert.AreEqual("Two", stringList[0].Sample());
+            Assert.AreEqual(Maybe.Some("Two"), stringList[0].Sample());
         }
 
         [TestMethod()]
@@ -58,20 +59,20 @@ namespace hatcyl.DataStructures.Frp.Tests
                 SetItemStream = setItem
             }).Build();
 
-            Assert.AreEqual("Initial", stringList[0].Sample());
+            Assert.AreEqual(Maybe.Some("Initial"), stringList[0].Sample());
 
             add.Send("One");
 
-            Assert.AreEqual("Initial", stringList[0].Sample());
-            Assert.AreEqual("One", stringList[1].Sample());
+            Assert.AreEqual(Maybe.Some("Initial"), stringList[0].Sample());
+            Assert.AreEqual(Maybe.Some("One"), stringList[1].Sample());
 
             remove.Send("Initial");
 
-            Assert.AreEqual("One", stringList[0].Sample());
+            Assert.AreEqual(Maybe.Some("One"), stringList[0].Sample());
 
             setItem.Send((0, "Two"));
 
-            Assert.AreEqual("Two", stringList[0].Sample());
+            Assert.AreEqual(Maybe.Some("Two"), stringList[0].Sample());
         }
     }
 }
