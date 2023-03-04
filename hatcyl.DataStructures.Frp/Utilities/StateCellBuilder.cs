@@ -10,10 +10,10 @@ public record class StateCellBuilder<TState>(TState InitialState)
         this with { Methods = Methods.Append(input.Map(logic)) };
 
     public StateCellBuilder<TState> WithMethod<T>(Func<T, Func<TState, TState>> logic, params Stream<T>[] inputs) =>
-            this with { Methods = Methods.Append(OrElse(inputs).Map(logic)) };
+        this with { Methods = Methods.Append(OrElse(inputs).Map(logic)) };
 
     public Cell<TState> Build() =>
-            Loop(loop => Merge(Methods).Snapshot(loop, (f, state) => f(state)).Hold(InitialState));
+        Loop(loop => Merge(Methods).Snapshot(loop, (f, state) => f(state)).Hold(InitialState));
 
     private Stream<T> OrElse<T>(IEnumerable<Stream<T>> streams) =>
         streams.Count() == 1 ? streams.Single() : OrElse(streams.Skip(2).Prepend(streams.First().OrElse(streams.Skip(1).First())));

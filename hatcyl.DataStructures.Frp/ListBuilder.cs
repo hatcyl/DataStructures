@@ -9,6 +9,7 @@ public record class ListBuilder<T>
     public Stream<T> AddStream { get; init; } = Stream.Never<T>();
     public Stream<IEnumerable<T>> AddRangeStream { get; init; } = Stream.Never<IEnumerable<T>>();
     public Stream<T> RemoveStream { get; init; } = Stream.Never<T>();
+    public Stream<IEnumerable<T>> RemoveRangeStream { get; init; } = Stream.Never<IEnumerable<T>>();
     public Stream<(int index, T value)> SetItemStream { get; init; } = Stream.Never<(int index, T value)>();
 
     public List<T> Build() => new
@@ -17,6 +18,7 @@ public record class ListBuilder<T>
         AddStream,
         AddRangeStream,
         RemoveStream,
+        RemoveRangeStream,
         SetItemStream
     );
 }

@@ -12,6 +12,7 @@ public class List<T>
     public Stream<T> AddStream { get; }
     public Stream<IEnumerable<T>> AddRangeStream { get; }
     public Stream<T> RemoveStream { get; }
+    public Stream<IEnumerable<T>> RemoveRangeStream { get; }
     public Stream<(int index, T value)> SetItemStream { get; }
 
     public List
@@ -20,6 +21,7 @@ public class List<T>
         Stream<T> addStream,
         Stream<IEnumerable<T>> addRangeStream,
         Stream<T> removeStream,
+        Stream<IEnumerable<T>> removeRangeStream,
         Stream<(int index, T value)> setItemStream
     )
     {
@@ -27,6 +29,7 @@ public class List<T>
         .WithMethod(addStream, value => state => state.Add(value))
         .WithMethod(addRangeStream, value => state => state.AddRange(value))
         .WithMethod(removeStream, value => state => state.Remove(value))
+        .WithMethod(removeRangeStream, value => state => state.RemoveRange(value))
         .WithMethod(setItemStream, values => state => state.SetItem(values.index, values.value))
         .Build();
 
@@ -34,6 +37,7 @@ public class List<T>
         AddStream = addStream;
         AddRangeStream = addRangeStream;
         RemoveStream = removeStream;
+        RemoveRangeStream = removeRangeStream;
         SetItemStream = setItemStream;
     }
 

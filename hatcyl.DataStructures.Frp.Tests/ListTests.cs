@@ -16,6 +16,7 @@ namespace hatcyl.DataStructures.Frp.Tests
             StreamSink<string> add = Stream.CreateSink<string>();
             StreamSink<IEnumerable<string>> addRange = Stream.CreateSink<IEnumerable<string>>();
             StreamSink<string> remove = Stream.CreateSink<string>();
+            StreamSink<IEnumerable<string>> removeRange = Stream.CreateSink<IEnumerable<string>>();
             StreamSink<(int index, string value)> setItem = Stream.CreateSink<(int index, string value)>();
 
             List<string> stringList = new List<string>
@@ -24,6 +25,7 @@ namespace hatcyl.DataStructures.Frp.Tests
                 add,
                 addRange,
                 remove,
+                removeRange,
                 setItem
             );
 
