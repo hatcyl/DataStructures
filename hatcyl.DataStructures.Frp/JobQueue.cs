@@ -13,6 +13,10 @@ using Stream = Sodium.Frp.Stream;
 namespace hatcyl.DataStructures.Frp;
 public class JobQueue<T>
 {
+    public record DequeuedJob (T Value);
+
+    public Dictionary<DequeuedJob, Stream<DequeuedJob>> ExpiredDequesdJobsFrp { get; }
+    public Cell<IImmutableDictionary<DequeuedJob, Stream<DequeuedJob>>> ExpiredDequeuedJobs { get; }
     public TimeSpan DequeuedJobExpiration { get; }
     public ITimerSystem<DateTime> TimerSystem { get; }
     public Queue<T> Queue { get; }
@@ -41,22 +45,18 @@ public class JobQueue<T>
             ClearStream = clearStream,
         }).Build();
 
+        ExpiredDequeuedJobs = new StateCellBuilder<IImmutableDictionary<DequeuedJob, Stream<DequeuedJob>>>(ImmutableDictionary.Create<DequeuedJob, Stream<DequeuedJob>>())
+            .WithMethod
+            (
+                dequeStream.Snapshot(Queue.Peek).FilterMaybe().Map(x => new DequeuedJob(x)),
+                value => state => state.Add(value, TimerSystem.At(Cell.Constant(Maybe.Some(DateTime.Now.Add(dequeuedJobExpiration)))).Once().MapTo(value))
+            )
+            .Build();
+
         List = (listBuilder with
         {
             AddStream = dequeStream.Snapshot(Queue.Peek).FilterMaybe(),
-            RemoveRangeStream = new StateCellBuilder<Stream<IEnumerable<T>>>(Stream.Never<IEnumerable<T>>())
-            .WithMethod
-            (
-                dequeStream.Snapshot(Queue.Peek).FilterMaybe(),
-                value => state => state.Merge
-                (
-                    TimerSystem
-                        .At(Cell.Constant(Maybe.Some(DateTime.Now.Add(dequeuedJobExpiration)))).Once()
-                        .MapTo(Enumerable.Empty<T>().Append(value)),
-                    (mergedStream, newStream) => mergedStream.Concat(newStream)
-                )
-            )
-            .Build().SwitchS()
+            RemoveRangeStream = ExpiredDequeuedJobs.Values().Map(x => x.Values).Map(x => x.MergeToEnumerable()).Hold(Stream.Never<IEnumerable<DequeuedJob>>()).SwitchS().Map(x => x.Select(y => y.Value))
         }).Build();
 
         DequeuedJobExpiration = dequeuedJobExpiration;

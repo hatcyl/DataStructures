@@ -27,7 +27,7 @@ namespace hatcyl.DataStructures.Frp.Tests
 
             JobQueue<string> stringQueue = new JobQueue<string>
             (
-                TimeSpan.FromSeconds(5),
+                TimeSpan.FromSeconds(3),
                 new SystemClockTimerSystem(Console.WriteLine),
                 new QueueBuilder<string>(),
                 new ListBuilder<string>(),

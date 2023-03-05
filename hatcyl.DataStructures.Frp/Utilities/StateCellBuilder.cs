@@ -18,7 +18,7 @@ public record class StateCellBuilder<TState>(TState InitialState)
     private Stream<T> OrElse<T>(IEnumerable<Stream<T>> streams) =>
         streams.Count() == 1 ? streams.Single() : OrElse(streams.Skip(2).Prepend(streams.First().OrElse(streams.Skip(1).First())));
 
-    private Stream<Func<TState, TState>> Merge(IEnumerable<Stream<Func<TState, TState>>> streams) =>
+    public static Stream<Func<TState, TState>> Merge(IEnumerable<Stream<Func<TState, TState>>> streams) =>
         streams.Count() == 1 ? streams.Single() : Merge(streams.Skip(2).Prepend(streams.First().Merge(streams.Skip(1).First(), (x, y) => s => x(y(s)))));
 
     private Cell<TState> Loop(Func<Cell<TState>, Cell<TState>> f) =>
