@@ -22,7 +22,8 @@ namespace hatcyl.DataStructures.Frp.Tests
                 initalState,
                 clearStream,
                 dequeStream,
-                enqueueStream
+                enqueueStream,
+                null
             );
 
             Assert.AreEqual(Maybe.Some("Initial"), stringQueue.Peek.Sample());

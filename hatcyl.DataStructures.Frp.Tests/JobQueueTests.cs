@@ -24,22 +24,24 @@ namespace hatcyl.DataStructures.Frp.Tests
             StreamSink<string> completeStream = Stream.CreateSink<string>();
             StreamSink<Unit> dequeStream = Stream.CreateSink<Unit>();
             StreamSink<string> enqueueStream = Stream.CreateSink<string>();
+            StreamSink<IEnumerable<string>> enqueueManyStream = Stream.CreateSink<IEnumerable<string>>();
 
             JobQueue<string> stringQueue = new JobQueue<string>
             (
                 TimeSpan.FromSeconds(3),
                 new SystemClockTimerSystem(Console.WriteLine),
+                new DictionaryBuilder<JobQueue<string>.DequeuedJob, Stream<JobQueue<string>.DequeuedJob>>(),
                 new QueueBuilder<string>(),
                 new ListBuilder<string>(),
                 clearStream,
                 completeStream,
                 dequeStream,
-                enqueueStream
+                enqueueStream,
+                enqueueManyStream
             );
 
-            stringQueue.List.RemoveRangeStream.Listen(x => { foreach (var y in x) Console.WriteLine($"REMOVED {y}"); });
-            stringQueue.List.RemoveStream.Listen(x => Console.WriteLine($"REMOVED {x}"));
-            stringQueue.List.Enumerable.Listen(x => { foreach (var value in x) Console.WriteLine(value); });
+            stringQueue.Queue.Enumerable.Listen(x => { Console.WriteLine($"Queue ---"); foreach (var y in x) Console.WriteLine($"Queue - {y}"); });
+            stringQueue.List.Enumerable.Listen(x => { Console.WriteLine($"List ---"); foreach (var y in x) Console.WriteLine($"List - {y}"); });
 
             enqueueStream.Send("One");
             enqueueStream.Send("Two");
@@ -51,7 +53,7 @@ namespace hatcyl.DataStructures.Frp.Tests
             //enqueueStream.Send("Three");
             //dequeStream.Send(Unit.Value);
 
-            await Task.Delay(4000);
+            await Task.Delay(6000);
         }
 
         [TestMethod()]

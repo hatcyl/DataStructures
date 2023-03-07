@@ -12,19 +12,22 @@ public class Queue<T>
     public Stream<Unit> ClearStream { get; }
     public Stream<Unit> DequeStream { get; }
     public Stream<T> EnqueueStream { get; }
+    public Stream<IEnumerable<T>> EnqueueManyStream { get; }
 
     public Queue
     (
         IImmutableQueue<T> initialState,
         Stream<Unit> clearStream,
         Stream<Unit> dequeStream,
-        Stream<T> enqueueStream
+        Stream<T> enqueueStream,
+        Stream<IEnumerable<T>> enqueueManyStream
     )
     {
         _state = new StateCellBuilder<IImmutableQueue<T>>(initialState)
         .WithMethod(clearStream, value => state => state.Clear())
         .WithMethod(dequeStream, value => state => state.Dequeue())
         .WithMethod(enqueueStream, value => state => state.Enqueue(value))
+        .WithMethod(enqueueManyStream, values => state => { foreach (var value in values) state = state.Enqueue(value); return state; })
         .Build();
 
         InitialState = initialState;
