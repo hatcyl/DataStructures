@@ -59,19 +59,15 @@ public class JobQueue<T>
                 AddStream = dequeStream.Snapshot(q.Peek).FilterMaybe().Map(job => new DequeuedJob(job)).Map(dequeuedJob => (dequeuedJob, TimerSystem.At(Cell.Constant(Maybe.Some(DateTime.Now.Add(dequeuedJobExpiration)))).Once().MapTo(dequeuedJob)))
             }).Build();
 
-
-
-
-            theStream.Loop(enqueueManyStream.Merge(d.Values.Values().Map(x => x.MergeToEnumerable()).Hold(Stream.Never<IEnumerable<DequeuedJob>>()).SwitchS().Map(x => x.Select(y => y.Value)), (x, y) => x.Concat(y)));
-
-
-
-
             var l = (listBuilder with
             {
                 AddStream = dequeStream.Snapshot(q.Peek).FilterMaybe(),
+                RemoveStream = completeStream,
                 RemoveRangeStream = d.Values.Values().Map(x => x.MergeToEnumerable()).Hold(Stream.Never<IEnumerable<DequeuedJob>>()).SwitchS().Map(x => x.Select(y => y.Value))
             }).Build();
+
+            theStream.Loop(enqueueManyStream.Merge(d.Values.Values().Map(x => x.MergeToEnumerable()).Hold(Stream.Never<IEnumerable<DequeuedJob>>()).SwitchS().Snapshot(l.Enumerable, (jobs, list) => jobs.Select(y => y.Value).Where(x => list.Contains(x))), (x, y) => x.Concat(y)));
+
 
             return (d, q, l);
         });
@@ -82,6 +78,7 @@ public class JobQueue<T>
         CompleteStream = completeStream;
         DequeStream = dequeStream;
         EnqueueStream = enqueueStream;
+        EnqueueManyStream = enqueueManyStream;
     }
 
     public Cell<Maybe<T>> Peek => Queue.Peek;

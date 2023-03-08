@@ -49,6 +49,8 @@ namespace hatcyl.DataStructures.Frp.Tests
 
             await Task.Delay(2000);
 
+            completeStream.Send("One");
+
             dequeStream.Send(Unit.Value);
             //enqueueStream.Send("Three");
             //dequeStream.Send(Unit.Value);
